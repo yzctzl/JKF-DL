@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+message UseTicketReq{
+  uint32 codaid = 1;
+  bool isNew = 2;
+  bool autoUseTicket = 3;
+  string productId = 4;
+}
+
+message AvideoReq{
+  uint32 codaid = 1;
+}
+
+message Timestamp{
+  uint32 seconds = 1;
+  uint32 nanos = 2;
+}
+
+message SearchAvideoReq{
+  uint32 page = 1;
+  uint32 limit = 2;
+  repeated uint32 actressIdsList = 3;
+  bool isAvPlus = 4;
+  Timestamp streamPublishAtStart = 5;
+  Timestamp streamPublishAtEnd = 6;
+  uint32 sortRule = 7;
+  bool onlyOldAvideo = 8;
+  Timestamp launchedAtStart = 9;
+  Timestamp launchedAtEnd = 10;
+  bool hideCompilation = 11;
+  repeated uint32 keywordIdsList = 12;
+  Timestamp popularAtEnd = 13;
+  repeated string publisherList = 14;
+  string series = 15;
+}
+
+message IdsReq{
+  repeated uint32 ids = 1;
+}
+
+message AvideoListReq{
+  uint32 page = 1;
+  uint32 limit = 2;
+  string no = 3;
+  uint32 actressId = 4;
+  uint32 KeywordId = 5;
+  bool isAvPlus = 6;
+  bool sortByHardcore = 7;
+}
+
+message SearchPlaylistReq{
+  uint32 page = 1;
+  uint32 limit = 2;
+  string keyword = 3;
+  Timestamp createAtStart = 4;
+  Timestamp createAtEnd = 5;
+  repeated uint32 channelIdsList = 6;
+  bool withoutFavoriteCount = 7;
+}
+
+message AvideoScheduleReq{
+  Timestamp startAt = 1;
+  Timestamp endAt = 2;
+  uint32 type = 3;
+}
+
+message ActressListReq{
+  uint32 page = 1;
+  uint32 limit = 2;
+  string name = 3;
+  uint32 actressId = 4;
+}
+
+message PublisherInfoReq{
+  uint32 publishId = 1;
+}

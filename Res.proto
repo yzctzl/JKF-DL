@@ -1,0 +1,202 @@
+syntax = "proto3";
+
+
+// https://bsaq5jax8bjap74e.jkforum.net/gapi/
+
+// '/speedjav.client.ClientService/CheckMember'
+// -H 'authorization: `access_token`' --data-raw 'AAAAAAA='
+message ChechMemberRes{
+  bool memberStatus = 1;
+  uint32 code = 2;
+  string inviteCode = 3;
+  uint32 inviteCount = 4;
+}
+
+message Language{
+  string jp = 1;
+  string tw = 2;
+  string en = 3;
+}
+
+message Timestamp{
+  uint32 seconds = 1;
+  uint32 nanos = 2;
+}
+
+message Keyword{
+  uint32 id = 1;
+  Language name = 2;
+}
+
+message Actress{
+  uint32 id = 1;
+  Language name = 2;
+  bool hasAvatar = 3;
+  uint32 avideoCount = 4;
+}
+
+message Publisher{
+  uint32 id = 1;
+  string name = 2;
+  string displayName = 3;
+  string iconUrl = 4;
+  uint32 avideoCount = 5;
+  uint32 favoriteCount = 6;
+  uint32 actressCount = 7;
+}
+
+message Series{
+  string tw = 1;
+  string jp = 2;
+}
+
+// '/speedjav.client.ClientService/AvideoDetail'
+//   -H 'authorization: `access_token`' --data-raw `hash2Id`
+message AvideoDetailRes{
+  uint32 codaid = 1;
+  string no = 2;
+  string productId = 3;
+  Language title = 4;
+  Timestamp startAt = 5;
+  repeated Keyword keywordList = 6;
+  repeated Actress actressList = 7;
+  uint32 duration = 8;
+  bool isAvPlus = 9;
+  bool isHd = 10;
+  uint32 code = 11;
+  uint32 previewNum = 12;
+  uint32 viewableIndex = 13;
+  uint32 stillsNum = 14;
+  string resolution = 15;
+  bool hasSubtitle = 16;
+  bool hasBoughtSubtitle = 17;
+  Publisher publisher = 18;
+  Series series = 19;
+}
+
+
+// '/speedjav.client.ClientService/GenTs'
+//  -H 'authorization: `access_token`' --data-raw `hash2Id`
+message StatusRes{
+  bool status = 1;
+  uint32 code = 2;
+}
+
+// '/speedjav.client.ClientService/AvideoSubtitle'
+//  -H 'authorization: `access_token`' --data-raw `hash2Id`
+message AvideoSubtitleRes {
+  string subtitle = 1;
+}
+
+// AccessToken and UseTicket
+message AtokenRes {
+  string token1 = 1;
+  string token2 = 2;
+}
+
+message AvideoBriefLite{
+  uint32 codaid = 1;
+  string no = 2;
+  string productId = 3;
+  Language title = 4;
+  Timestamp startAt = 5;
+  repeated uint32 actressIdsList = 6;
+  bool isAvPlus = 7;
+  bool isHd = 8;
+  Timestamp launchedAt = 9;
+  bool hasSubtitle = 10;
+}
+
+// "/speedjav.client.ClientService/SearchAvideo"
+// -H 'authorization: `access_token`' --data-raw SearchAvideoReq
+message SearchAvideoRes {
+  repeated AvideoBriefLite avideoList = 1;
+  uint32 total = 2;
+}
+
+// "/speedjav.client.ClientService/ActressListByIds"
+// -H 'authorization: `access_token`' --data-raw IdsReq
+message ActressListRes{
+  repeated Actress actressList = 1;
+  uint32 code = 2;
+  uint32 total = 3;
+}
+
+// "/speedjav.client.ClientService/PublisherListByIds"
+// -H 'authorization: `access_token`' --data-raw IdsReq
+message Publishers{
+  repeated Publisher PublisherList = 1;
+}
+
+// "/speedjav.client.ClientService/AvideoList"
+// -H 'authorization: `access_token`' --data-raw AvideoListReq
+message AvideoListRes{
+  repeated AvideoBrief avideoList = 1;
+  uint32 code = 2;
+  uint32 total = 3;
+}
+
+message AvideoBrief{
+  uint32 codaid = 1;
+  string no = 2;
+  string productId = 3;
+  Language title = 4;
+  Timestamp startAt = 5;
+  repeated Actress actressList = 6;
+  bool isAvPlus = 7;
+  bool isHd = 8;
+  Timestamp eventAt = 9;
+  bool isOff = 10;
+  bool hasSubtitle = 11;
+}
+
+message SearchPlaylistRes{
+  repeated Playlist playlistsList = 1;
+  uint32 total = 2;
+}
+
+message Playlist{
+  string id = 1;
+  string title = 2;
+  uint32 coverType = 3;
+  repeated string coverUrlList = 4;
+  repeated uint32 coverCodaidList = 5;
+  string channelId = 6;
+  string channelName = 7;
+  string channelCoverUrl = 8;
+  uint32 favoritedCount = 9;
+  uint32 avideoCount = 10;
+  repeated Timestamp createdAt = 11;
+  repeated uint32 codaidList = 12;
+  string description = 13;
+  uint32 channelOwnerId = 14;
+  string generatorType = 15;
+  bool channelIsOfficial = 16;
+  uint32 status = 17;
+}
+
+message AvideoScheduleRes{
+  repeated AvideoScheduleDataMap dataMap = 1;
+}
+
+message AvideoSchedule{
+  repeated uint32 codaidList = 1;
+  repeated uint32 avplusCodaidsList = 2;
+}
+
+message AvideoScheduleDataMap{
+  string key = 1;
+  AvideoSchedule dataMap = 2;
+}
+
+message PublisherInfoRes{
+  uint32 id = 1;
+  string name = 2;
+  string displayName = 3;
+  string iconUrl = 4;
+  string description = 5;
+  uint32 favoriteCount = 6;
+  repeated uint32 actressidsList = 7;
+  repeated Series seriesList = 8;
+  uint32 avideoCount = 9;
+}
