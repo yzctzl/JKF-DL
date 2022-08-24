@@ -49,7 +49,7 @@ class SpeedJav:
         self.ffmpeg = config["ffmpeg"]
 
         self.uid = self.get_uid_from_ap_pot()
-        self.sub_key = config["sub_key"].decode("utf8")
+        self.sub_key = config["sub_key"].encode("utf8")
         self.sub_iv = bytes([ord(char) for char in str(self.uid)]).zfill(16)
 
         self.access_token = ""
@@ -153,23 +153,23 @@ class SpeedJav:
     def get_video_detail(self):
         url = self.api_url + "/speedjav.client.ClientService/AvideoDetail"
         header = self.get_new_header(url, authorization=self.get_access_token(), accept="application/grpc-web-text")
-        response = httpx.post(url, headers=header, proxies=self.proxies,
+        response = httpx.post(url, headers=header, proxies=self.proxies, verify=False,
                               content=self.get_grpc_payload(AvideoReq(), {"codaid": self.codaid}))
         video_detail = AvideoDetailRes().parse(self.get_proto_from_response(response)).to_dict()
         logging.debug(video_detail)
         self.video_detail = video_detail
 
-    @retry(stop=stop_after_attempt(3))
+    @retry(stop=stop_after_attempt(7))
     def get_video_subtitle(self):
+        if "hasSubtitle" not in self.video_detail:
+            logging.warning(f"SUBTITLE DOES NOT EXIST: {self.codaid}")
+            return
         self.subtitle_path["tw"] = os.path.join(self.temp_path, f"{self.video_detail['productId']}_tw.vtt")
         self.subtitle_path["cn"] = os.path.join(self.temp_path, f"{self.video_detail['productId']}_cn.vtt")
-        if "hasSubtitle" not in self.video_detail:
-            logging.warning("SUBTITLE DOES NOT EXIST!")
-            return
         try:
             url = self.api_url + "/speedjav.client.ClientService/AvideoSubtitle"
             header = self.get_new_header(url, authorization=self.get_access_token(), accept="application/grpc-web-text")
-            response = httpx.post(url, headers=header, proxies=self.proxies,
+            response = httpx.post(url, headers=header, proxies=self.proxies, verify=False,
                                   content=self.get_grpc_payload(AvideoReq(), {"codaid": self.codaid}))
             subtitle_enc = AvideoSubtitleRes().parse(self.get_proto_from_response(response)).subtitle
             decryptor = Cipher(algorithms.AES(self.sub_key), modes.CBC(self.sub_iv)).decryptor()
@@ -183,7 +183,7 @@ class SpeedJav:
                 caption.text = self.tw2s.convert(caption.text)
             vtt.save(self.subtitle_path["cn"])
         except httpx.HTTPError:
-            logging.critical("VIDEO SUBTITLE GET ERROR!")
+            logging.critical(f"VIDEO SUBTITLE GET ERROR: {self.video_detail['productId']}")
 
     def stills_dl(self):
         base_url = f"{self.pub_url}/v/{self.video_detail['productId']}/data/{self.video_detail['productId']}"
@@ -289,42 +289,6 @@ class SpeedJav:
         command = [*command_protocol, *command_import, *command_map, *command_codec, *command_metadata,
                    os.path.join(self.dest_path, f"{self.video_detail['no']}.mp4")]
         subprocess.run(command)
-
-    # @retry(stop=stop_after_attempt(3))
-    # def search_avideo_list(self, param: dict):
-    #     url = self.api_url + "/speedjav.client.ClientService/AvideoList"
-    #     payload = self.get_grpc_payload(AvideoListReq(), param)
-    #     header = self.get_new_header(url, authorization=self.get_access_token(), accept="application/grpc-web-text")
-    #     response = httpx.post(url, headers=header, proxies=self.proxies, content=payload)
-    #     avideo_list = AvideoListRes().parse(self.get_proto_from_response(response)).to_dict()
-    #     return avideo_list
-    #
-    # @retry(stop=stop_after_attempt(3))
-    # def search_playlist(self, param: dict):
-    #     url = self.api_url + "/speedjav.client.ClientService/SearchPlaylist"
-    #     payload = self.get_grpc_payload(SearchPlaylistReq(), param)
-    #     header = self.get_new_header(url, authorization=self.get_access_token(), accept="application/grpc-web-text")
-    #     response = httpx.post(url, headers=header, proxies=self.proxies, content=payload)
-    #     playlists = SearchPlaylistRes().parse(self.get_proto_from_response(response)).to_dict()
-    #     return playlists
-    #
-    # @retry(stop=stop_after_attempt(3))
-    # def search_playlist(self, param: dict):
-    #     url = self.api_url + "/speedjav.client.ClientService/ActressListByIds"
-    #     payload = self.get_grpc_payload(IdsReq(), param)
-    #     header = self.get_new_header(url, authorization=self.get_access_token(), accept="application/grpc-web-text")
-    #     response = httpx.post(url, headers=header, proxies=self.proxies, content=payload)
-    #     actress_list = ActressListRes().parse(self.get_proto_from_response(response)).to_dict()
-    #     return actress_list
-    #
-    # @retry(stop=stop_after_attempt(3))
-    # def publisher_list_by_ids(self, param: dict):
-    #     url = self.api_url + "/speedjav.client.ClientService/PublisherListByIds"
-    #     payload = self.get_grpc_payload(IdsReq(), param)
-    #     header = self.get_new_header(url, authorization=self.get_access_token(), accept="application/grpc-web-text")
-    #     response = httpx.post(url, headers=header, proxies=self.proxies, content=payload)
-    #     publishers = Publishers().parse(self.get_proto_from_response(response)).to_dict()
-    #     return publishers
 
     @retry(stop=stop_after_attempt(3))
     def search_by_param(self, gapi: str, Req: betterproto.Message, Res: betterproto.Message, param: dict):
